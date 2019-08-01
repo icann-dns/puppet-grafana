@@ -25,25 +25,13 @@ class grafana::settings::paths (
     ['', 'dashboards', 'datasources'], "${_provisioning}/"
   )
 
-  if $manage_provisioning {
-
-    file { $_provisioning_dirs:
-      ensure  => directory,
-      purge   => true,
-      recurse => true,
-      force   => true,
-      owner   => $grafana::user,
-      group   => $grafana::group,
-      mode    => '0750',
-    }
-  } else {
-
-    file { $_provisioning_dirs:
-      ensure  => directory,
-      recurse => true,
-      owner   => $grafana::user,
-      group   => $grafana::group,
-      mode    => '0750',
-    }
+  file { $_provisioning_dirs:
+    ensure  => directory,
+    purge   => $manage_provisioning,
+    recurse => true,
+    force   => $manage_provisioning,
+    owner   => $grafana::user,
+    group   => $grafana::group,
+    mode    => '0750',
   }
 }
