@@ -4,6 +4,7 @@ class grafana::settings::paths (
   Optional[String] $logs = undef,
   Optional[String] $plugins = undef,
   Optional[String] $provisioning = undef,
+  Boolean          $manage_provisioning = true,
 ) {
   $settings = {
     'data'         => $data,
@@ -24,13 +25,25 @@ class grafana::settings::paths (
     ['', 'dashboards', 'datasources'], "${_provisioning}/"
   )
 
-  file { $_provisioning_dirs:
-    ensure  => directory,
-    purge   => true,
-    recurse => true,
-    force   => true,
-    owner   => $grafana::user,
-    group   => $grafana::group,
-    mode    => '0750',
+  if $manage_provisioning {
+
+    file { $_provisioning_dirs:
+      ensure  => directory,
+      purge   => true,
+      recurse => true,
+      force   => true,
+      owner   => $grafana::user,
+      group   => $grafana::group,
+      mode    => '0750',
+    }
+  } else {
+
+    file { $_provisioning_dirs:
+      ensure  => directory,
+      recurse => true,
+      owner   => $grafana::user,
+      group   => $grafana::group,
+      mode    => '0750',
+    }
   }
 }
