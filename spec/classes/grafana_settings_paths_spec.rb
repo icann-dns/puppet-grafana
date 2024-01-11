@@ -16,10 +16,10 @@ describe 'grafana::settings::paths' do
           is_expected.to contain_grafana__settings('paths')
             .with(
               'settings' => {
-                'data'         => :undef,
-                'logs'         => :undef,
-                'plugins'      => :undef,
-                'provisioning' => :undef,
+                'data'         => nil,
+                'logs'         => nil,
+                'plugins'      => nil,
+                'provisioning' => '/etc/grafana/provisioning',
               },
             )
         end
@@ -29,14 +29,10 @@ describe 'grafana::settings::paths' do
             is_expected.to contain_file("/etc/grafana/provisioning/#{file}")
               .with(
                 'ensure'  => 'directory',
-                'purge'   => true,
-                'recurse' => true,
-                'force'   => true,
-                'owner'   => 'grafana',
+                'owner'   => 'root',
                 'group'   => 'grafana',
-                'mode'    => '0750',
+                'mode'    => '0755',
               )
-              .that_requires('Class[grafana::config]')
           end
         end
       end
@@ -52,10 +48,10 @@ describe 'grafana::settings::paths' do
           is_expected.to contain_grafana__settings('paths')
             .with(
               'settings' => {
-                'data'         => :undef,
-                'logs'         => :undef,
-                'plugins'      => :undef,
-                'provisioning' => :undef,
+                'data'         => nil,
+                'logs'         => nil,
+                'plugins'      => nil,
+                'provisioning' => '/etc/foo/provisioning',
               },
             )
         end
@@ -65,14 +61,10 @@ describe 'grafana::settings::paths' do
             is_expected.to contain_file("/etc/foo/provisioning/#{file}")
               .with(
                 'ensure'  => 'directory',
-                'purge'   => true,
-                'recurse' => true,
-                'force'   => true,
-                'owner'   => 'grafana',
+                'owner'   => 'root',
                 'group'   => 'grafana',
-                'mode'    => '0750',
+                'mode'    => '0755',
               )
-              .that_requires('Class[grafana::config]')
           end
         end
       end
@@ -108,14 +100,10 @@ describe 'grafana::settings::paths' do
             is_expected.to contain_file("/etc/custom4/provisioning/#{file}")
               .with(
                 'ensure'  => 'directory',
-                'purge'   => true,
-                'recurse' => true,
-                'force'   => true,
-                'owner'   => 'grafana',
+                'owner'   => 'root',
                 'group'   => 'grafana',
-                'mode'    => '0750',
+                'mode'    => '0755',
               )
-              .that_requires('Class[grafana::config]')
           end
         end
       end
