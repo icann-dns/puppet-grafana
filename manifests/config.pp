@@ -29,7 +29,7 @@ class grafana::config {
     owner  => $grafana::user,
     group  => $grafana::group,
     mode   => '0640',
-    notify => $grafana::service_name,
+    notify => Service[$grafana::service_name],
   }
 
   $grafana::settings.each |$section, $params| {
