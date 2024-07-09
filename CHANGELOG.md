@@ -1,3 +1,6 @@
+### 2024-07-09 1.4.0
+* Feaature: Add dashboards support
+
 ### 2024-01-1 1.3.0
 * Feaature: Also notify the service if any grefana::settings are changed
 
