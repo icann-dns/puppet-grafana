@@ -1,13 +1,25 @@
 # frozen_string_literal: true
 
 Puppet::Type.type(:grafana_plugin).provide(:grafana_cli) do
-  has_command(:grafana_cli, 'grafana-cli') do
-    is_optional
-  end
-
   defaultfor feature: :posix
 
   mk_resource_methods
+
+  def self.grafana_cli_path
+    @grafana_cli_path ||= Puppet::Util.which('grafana-cli')
+  end
+
+  def self.grafana_cli_available?
+    !grafana_cli_path.nil?
+  end
+
+  def self.execute_grafana_cli(*args)
+    unless grafana_cli_available?
+      Puppet.debug('grafana-cli is not installed. Please install Grafana before managing plugins.')
+      return ''
+    end
+    Puppet::Util::Execution.execute([grafana_cli_path] + args)
+  end
 
   def self.parse_plugin_line(line)
     return nil unless line.include?('@')
@@ -23,13 +35,18 @@ Puppet::Type.type(:grafana_plugin).provide(:grafana_cli) do
 
   def self.all_plugins
     plugins = {}
-    grafana_cli('plugins', 'ls').split(%r{\n}).each do |line|
-      parsed = parse_plugin_line(line)
-      next unless parsed
+    begin
+      output = execute_grafana_cli('plugins', 'ls')
+      output.split(%r{\n}).each do |line|
+        parsed = parse_plugin_line(line)
+        next unless parsed
 
-      name, version = parsed
-      Puppet.debug("Found grafana plugin #{name} #{version}")
-      plugins[name] = version
+        name, version = parsed
+        Puppet.debug("Found grafana plugin #{name} #{version}")
+        plugins[name] = version
+      end
+    rescue Puppet::Error => e
+      Puppet.debug("Unable to query grafana plugins: #{e.message}")
     end
     plugins
   end
@@ -83,12 +100,12 @@ Puppet::Type.type(:grafana_plugin).provide(:grafana_cli) do
       cmd.unshift('--pluginUrl', resource[:plugin_url])
     end
     cmd << version if version
-    grafana_cli(*cmd)
+    self.class.execute_grafana_cli(*cmd)
     @property_hash[:ensure] = version || :present
   end
 
   def destroy
-    grafana_cli('plugins', 'uninstall', resource[:name])
+    self.class.execute_grafana_cli('plugins', 'uninstall', resource[:name])
     @property_hash[:ensure] = :absent
   end
 end
