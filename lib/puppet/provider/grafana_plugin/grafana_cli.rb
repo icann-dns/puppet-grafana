@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 Puppet::Type.type(:grafana_plugin).provide(:grafana_cli) do
-  has_command(:grafana_cli, 'grafana-cli') do
-    is_optional
-  end
+  grafana_path = Puppet::Util.which('grafana-cli')
+  confine :exists => grafana_path
+  commands grafana_cli: grafana_path
 
   defaultfor feature: :posix
 
